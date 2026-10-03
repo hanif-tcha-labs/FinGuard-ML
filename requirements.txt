@@ -1,0 +1,59 @@
+# =========================
+# Data manipulation
+# =========================
+numpy
+pandas
+scipy
+
+# =========================
+# Visualization
+# =========================
+matplotlib
+seaborn
+
+# =========================
+# Jupyter
+# =========================
+jupyter
+jupyterlab
+ipykernel
+
+# =========================
+# Machine Learning
+# =========================
+scikit-learn
+
+# Gradient Boosting
+xgboost
+lightgbm
+
+# =========================
+# Imbalanced Learning
+# =========================
+imbalanced-learn
+
+# =========================
+# Model Explainability
+# =========================
+shap
+
+# =========================
+# Model persistence
+# =========================
+joblib
+
+# =========================
+# Data formats
+# =========================
+openpyxl
+pyarrow
+
+# =========================
+# Configuration / utilities
+# =========================
+python-dotenv
+
+# =========================
+# Testing
+# =========================
+pytest
