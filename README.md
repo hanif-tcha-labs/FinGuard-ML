@@ -13,8 +13,8 @@ Data Understanding → Data Quality → EDA → Leakage Analysis → Feature Eng
 ## Current status
 
 - [x] Data Understanding (`notebooks/01_data_understanding.ipynb`)
-- [ ] Data Quality
-- [ ] EDA
+- [x] Data Quality
+- [x] EDA
 - [ ] Leakage Analysis
 - [ ] Feature Engineering
 - [ ] Modeling
