@@ -15,8 +15,8 @@ Data Understanding → Data Quality → EDA → Leakage Analysis → Feature Eng
 - [x] Data Understanding (`notebooks/01_data_understanding.ipynb`)
 - [x] Data Quality
 - [x] EDA
-- [ ] Leakage Analysis
-- [ ] Feature Engineering
+- [x] Leakage Analysis
+- [X] Feature Engineering
 - [ ] Modeling
 - [ ] Explainability
 - [ ] Backend / Frontend
