@@ -18,7 +18,6 @@ Data Understanding → Data Quality → EDA → Leakage Analysis → Feature Eng
 - [x] Leakage Analysis
 - [X] Feature Engineering
 - [X] Modeling
-- [ ] Explainability
 - [ ] Backend / Frontend
 - [ ] Testing / Docker
 
