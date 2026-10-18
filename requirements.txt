@@ -1,59 +1,59 @@
 # =========================
 # Data manipulation
 # =========================
-numpy
-pandas
-scipy
+numpy==2.5.4
+pandas==3.0.6
+scipy==1.18.1
 
 # =========================
 # Visualization
 # =========================
-matplotlib
-seaborn
+matplotlib==3.11.2
+seaborn==0.13.2
 
 # =========================
 # Jupyter
 # =========================
-jupyter
-jupyterlab
-ipykernel
+jupyter==1.1.1
+jupyterlab==4.6.4
+ipykernel==7.4.0
 
 # =========================
 # Machine Learning
 # =========================
-scikit-learn
+scikit-learn==1.9.1
 
 # Gradient Boosting
-xgboost
-lightgbm
+xgboost==3.4.1
+lightgbm==4.7.0
 
 # =========================
 # Imbalanced Learning
 # =========================
-imbalanced-learn
+imbalanced-learn==0.14.2
 
 # =========================
 # Model Explainability
 # =========================
-shap
+shap==0.53.0
 
 # =========================
 # Model persistence
 # =========================
-joblib
+joblib==1.6.0
 
 # =========================
 # Data formats
 # =========================
-openpyxl
-pyarrow
+openpyxl==3.1.5
+pyarrow==26.0.0
 
 # =========================
 # Configuration / utilities
 # =========================
-python-dotenv
+python-dotenv==1.2.4
 
 # =========================
 # Testing
 # =========================
-pytest
+pytest==9.1.1
