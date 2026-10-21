@@ -61,9 +61,11 @@ data/processed/*
 
 models/*
 !models/.gitkeep
+!models/final_model.joblib
 
 *.pkl
 *.joblib
+!models/final_model.joblib
 *.h5
 *.hdf5
 *.onnx

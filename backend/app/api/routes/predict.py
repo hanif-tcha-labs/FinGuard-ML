@@ -7,7 +7,11 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
-from backend.app.schemas.transactions import PredictionResult, TransactionInput
+from backend.app.schemas.transactions import (
+    PredictionResult,
+    TransactionInput,
+    TransactionRecord,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["predictions"])
@@ -35,6 +39,14 @@ def predict(transaction: TransactionInput, request: Request) -> dict:
     result = service.predict(transaction)
     request.app.state.database.add_prediction(transaction, result)
     return result
+
+
+@router.post("/live/next", response_model=TransactionRecord, tags=["live monitoring"])
+def predict_next_live_transaction(request: Request) -> dict:
+    transaction, result = request.app.state.transaction_feed.next_prediction(
+        request.app.state.prediction_service
+    )
+    return request.app.state.database.add_prediction(transaction, result)
 
 
 @router.post("/predict/batch", responses={200: {"content": {"text/csv": {}}}})

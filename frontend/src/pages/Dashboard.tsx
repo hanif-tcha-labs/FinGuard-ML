@@ -5,13 +5,15 @@ import {
   BadgeCheck,
   CircleHelp,
   Coins,
+  Pause,
   Radar,
+  Radio,
   ShieldAlert,
   ShieldCheck,
   Shield,
   Wallet,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import type { DashboardStats, TransactionRecord } from "../types";
 import { ActivityChart, ClassificationChart, FraudAmountCard, TypeChart } from "../components/Charts";
@@ -65,6 +67,13 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: "analysis" | "his
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [monitoring, setMonitoring] = useState(false);
+  const [feedError, setFeedError] = useState("");
+  const [feed, setFeed] = useState<TransactionRecord[]>([]);
+  const [feedCounts, setFeedCounts] = useState({ fraud: 0, legitimate: 0 });
+  const monitoringRef = useRef(false);
+  const timerRef = useRef<number | null>(null);
+  const processedRef = useRef(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,6 +93,53 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: "analysis" | "his
     window.addEventListener("fraudguard:refresh", refresh);
     return () => window.removeEventListener("fraudguard:refresh", refresh);
   }, [load]);
+
+  useEffect(() => () => {
+    monitoringRef.current = false;
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+  }, []);
+
+  const fetchNextTransaction = useCallback(async () => {
+    if (!monitoringRef.current) return;
+    try {
+      const transaction = await api.liveNext();
+      setFeed((current) => [transaction, ...current].slice(0, 8));
+      setFeedCounts((current) => ({
+        fraud: current.fraud + Number(transaction.is_fraud),
+        legitimate: current.legitimate + Number(!transaction.is_fraud),
+      }));
+      processedRef.current += 1;
+      if (processedRef.current % 5 === 0) {
+        try {
+          setStats(await api.dashboard());
+        } catch {
+          setFeedError("Transactions are still being monitored, but dashboard totals could not be refreshed.");
+        }
+      }
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : "Could not retrieve the next transaction.";
+      setFeedError(message);
+      monitoringRef.current = false;
+      setMonitoring(false);
+      return;
+    }
+    if (monitoringRef.current) {
+      timerRef.current = window.setTimeout(() => void fetchNextTransaction(), 1200);
+    }
+  }, []);
+
+  function toggleMonitoring() {
+    if (monitoringRef.current) {
+      monitoringRef.current = false;
+      setMonitoring(false);
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      return;
+    }
+    setFeedError("");
+    monitoringRef.current = true;
+    setMonitoring(true);
+    void fetchNextTransaction();
+  }
 
   if (error) return <ErrorState message={error} />;
   const live = stats?.live;
@@ -115,6 +171,49 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: "analysis" | "his
           </>
         )}
       </div>
+
+      <Card className="live-monitor-card">
+        <div className="card-heading">
+          <div>
+            <div className="eyebrow"><Radio size={12} /> LIVE TRANSACTION FEED</div>
+            <h3>Transaction monitoring</h3>
+            <p>Incoming transactions are scored and added to your history.</p>
+          </div>
+          <div className="live-monitor-actions">
+            {monitoring && <Badge tone="success"><span className="live-pulse" /> Monitoring active</Badge>}
+            <Button variant={monitoring ? "secondary" : "primary"} onClick={toggleMonitoring}>
+              {monitoring ? <><Pause size={15} /> Pause monitoring</> : <><Radio size={15} /> Start monitoring</>}
+            </Button>
+          </div>
+        </div>
+        <div className="live-feed-summary">
+          <span><b>{(feedCounts.fraud + feedCounts.legitimate).toLocaleString()}</b> processed</span>
+          <span className="feed-fraud"><ShieldAlert size={13} /> <b>{feedCounts.fraud.toLocaleString()}</b> fraud</span>
+          <span className="feed-legitimate"><BadgeCheck size={13} /> <b>{feedCounts.legitimate.toLocaleString()}</b> legitimate</span>
+        </div>
+        {feedError && <div className="form-error" role="alert">{feedError}</div>}
+        {feed.length ? (
+          <div className="table-scroll live-feed-table">
+            <table className="data-table">
+              <thead><tr><th>Transaction</th><th>Type</th><th>Amount</th><th>Origin</th><th>Destination</th><th>Risk score</th><th>Decision</th><th>Received</th></tr></thead>
+              <tbody>{feed.map((item) => (
+                <tr key={item.id}>
+                  <td>#{item.id}</td>
+                  <td><Badge tone="neutral">{item.type}</Badge></td>
+                  <td>{formatAmount(item.amount)}</td>
+                  <td>{item.nameOrig ?? "—"}</td>
+                  <td>{item.nameDest ?? "—"}</td>
+                  <td>{(item.fraud_probability * 100).toFixed(1)}%</td>
+                  <td><Badge tone={item.is_fraud ? "danger" : "success"}>{item.prediction}</Badge></td>
+                  <td>{new Date(item.created_at).toLocaleTimeString()}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState title="Monitoring is ready" description="Start monitoring to review transaction decisions as they arrive." />
+        )}
+      </Card>
 
       <div className="section-caption source-caption"><span>PAYSIM DATASET CONTEXT</span><span className="caption-line" /><small>Historical ground truth · separate from live predictions</small></div>
       {loading ? <div className="charts-grid"><Skeleton className="chart-skeleton" /><Skeleton className="chart-skeleton wide" /><Skeleton className="chart-skeleton" /><Skeleton className="chart-skeleton" /></div> : (

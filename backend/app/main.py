@@ -13,6 +13,7 @@ from backend.app.core.config import Settings
 from backend.app.database import Database
 from backend.app.services.analytics import DatasetAnalyticsService
 from backend.app.services.prediction import PredictionService
+from backend.app.services.transaction_feed import TransactionFeed
 
 logger = logging.getLogger("htvex_ai")
 
@@ -30,6 +31,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         application.state.dataset_analytics = DatasetAnalyticsService(
             configuration.dataset_path
         )
+        application.state.transaction_feed = TransactionFeed()
         application.state.settings = configuration
         logger.info("HTVEX AI API ready; model version %s", application.state.prediction_service.version)
         yield

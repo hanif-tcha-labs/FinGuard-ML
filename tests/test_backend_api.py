@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from backend.app.core.config import PROJECT_ROOT, Settings
 from backend.app.main import create_app
+from backend.app.services.transaction_feed import TransactionFeed
 
 
 @pytest.fixture
@@ -59,6 +60,43 @@ def test_health_and_prediction_use_saved_model(client):
     assert result["prediction"] in {"Fraud", "Legitimate"}
     assert result["is_fraud"] is (result["fraud_probability"] >= result["threshold"])
     assert result["risk_level"] == ("High" if result["is_fraud"] else "Low")
+
+
+def test_live_feed_scores_and_saves_fixture_transactions(client):
+    records = []
+    for _ in range(12):
+        response = client.post("/api/live/next")
+        assert response.status_code == 200
+        records.append(response.json())
+
+    assert records[0]["nameOrig"] == "C0000000000"
+    assert records[0]["type"] == "CASH_OUT"
+    assert all(
+        record["is_fraud"] is (
+            record["fraud_probability"] >= record["threshold"]
+        )
+        for record in records
+    )
+    assert {record["prediction"] for record in records} == {"Fraud", "Legitimate"}
+    assert client.get("/api/transactions").json()["total"] == len(records)
+
+
+def test_transaction_feed_replays_after_reaching_end(client, tmp_path):
+    source = tmp_path / "transactions.csv"
+    source.write_text(
+        "type,amount,oldbalanceOrg,oldbalanceDest\n"
+        "TRANSFER,100,100,0\n"
+        "CASH_OUT,50,50,0\n",
+        encoding="utf-8",
+    )
+    feed = TransactionFeed(source)
+    prediction_service = client.app.state.prediction_service
+
+    first, _ = feed.next_prediction(prediction_service)
+    feed.next_prediction(prediction_service)
+    replayed, _ = feed.next_prediction(prediction_service)
+
+    assert replayed == first
 
 
 def test_batch_keeps_invalid_rows_and_saves_valid_predictions(client):

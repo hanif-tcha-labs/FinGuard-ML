@@ -183,6 +183,12 @@ kbd { display: grid; min-width: 17px; height: 17px; place-items: center; padding
 .amount-card { min-height: 286px; }.amount-total { margin: -2px 0 0 4px; color: #dff3ea; font-size: 1.4375rem; font-weight: 650; letter-spacing: -.5px; }
 .chart-skeleton { height: 286px; }.dataset-footnote { display: flex; align-items: center; gap: 6px; color: #75849a; font-size: 0.5625rem; }.dataset-footnote b { color: #a8b7ca; font-weight: 560; }
 .bottom-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(245px, .8fr); gap: 12px; }
+.live-monitor-card { overflow: hidden; padding: 17px; }
+.live-monitor-actions, .live-feed-summary { display: flex; align-items: center; gap: 10px; }
+.live-monitor-actions .badge { white-space: nowrap; }.live-monitor-actions .live-pulse { background: var(--green); }
+.live-feed-summary { flex-wrap: wrap; padding: 13px 0; margin-top: 12px; color: #8c9ab0; font-size: .5625rem; border-top: 1px solid var(--border); }
+.live-feed-summary > span { display: inline-flex; align-items: center; gap: 5px; }.live-feed-summary b { color: #dce5f1; font-variant-numeric: tabular-nums; }.live-feed-summary .feed-fraud { color: var(--red); }.live-feed-summary .feed-legitimate { color: var(--green); }
+.live-feed-table { max-height: 340px; overflow: auto; }.live-feed-table .data-table { min-width: 760px; }
 .activity-feed, .signal-card { min-height: 256px; padding: 16px; }
 .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .card-heading .eyebrow { margin-bottom: 6px; }.card-heading h3 { font-size: 0.75rem; }

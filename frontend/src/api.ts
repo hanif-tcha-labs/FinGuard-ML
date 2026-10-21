@@ -10,7 +10,7 @@ import type {
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://127.0.0.1:8000";
+  "";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
@@ -66,6 +66,8 @@ export const api = {
   baseUrl: API_BASE,
   health: () => request<HealthStatus>("/api/health"),
   dashboard: () => request<DashboardStats>("/api/dashboard/stats"),
+  liveNext: () =>
+    request<TransactionRecord>("/api/live/next", { method: "POST" }),
   predict: (input: PredictionInput) =>
     request<PredictionResult>("/api/predict", {
       method: "POST",
